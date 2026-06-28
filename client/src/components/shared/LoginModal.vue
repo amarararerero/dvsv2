@@ -15,6 +15,16 @@ const errorMessage = ref('');
 const isElectionEnded = ref(false);
 const isElectionNotStarted = ref(false);
 
+const getTodayDateString = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const electionDate = ref(getTodayDateString());
+
 watch(inputId, (newVal) => {
   if (newVal.toUpperCase() === 'ADMIN') {
     isAdminMode.value = true;
@@ -31,6 +41,13 @@ onMounted(async () => {
       const startDate = new Date(status.election_start);
       const endDate = new Date(status.election_end);
       const now = new Date();
+
+      if (status.election_start) {
+        const year = startDate.getFullYear();
+        const month = String(startDate.getMonth() + 1).padStart(2, '0');
+        const day = String(startDate.getDate()).padStart(2, '0');
+        electionDate.value = `${year}-${month}-${day}`;
+      }
 
       if (now < startDate) {
         isElectionNotStarted.value = true;
@@ -52,6 +69,34 @@ const showPledgeModal = ref(false);
 const pledgeLoading = ref(false);
 const pendingStudent = ref(null);
 const pendingToken = ref('');
+
+const checkSemesterTime = (studentData) => {
+  const baseDate = electionDate.value;
+  const parts = baseDate.split('-');
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; 
+  const day = parseInt(parts[2], 10);
+
+  const sem = Number(studentData.semester);
+
+  if (sem === 2) {
+    const timeS2Start = new Date(year, month, day, 8, 0, 0);
+    const timeS2End = new Date(year, month, day, 13, 0, 0);
+    if (new Date() < timeS2Start || new Date() > timeS2End) {
+      errorMessage.value = "Semester 2 students can vote from 8AM to 1PM only.";
+      return false;
+    }
+  }
+  if (sem === 4) {
+    const timeS4Start = new Date(year, month, day, 14, 0, 0);
+    const timeS4End = new Date(year, month, day, 19, 0, 0);
+    if (new Date() < timeS4Start || new Date() > timeS4End) {
+      errorMessage.value = "Semester 4 students can vote from 2PM to 7PM only.";
+      return false;
+    }
+  }
+  return true;
+};
 
 const finalizeLogin = (studentData) => {
     if (pendingToken.value) {
@@ -113,6 +158,11 @@ const handleLogin = async () => {
 
       if (response.success) {
         const student = response.student;
+        
+        if (!checkSemesterTime(student)) {
+          return;
+        }
+
         pendingToken.value = response.token;
 
         if (student.acceptPledge) {
