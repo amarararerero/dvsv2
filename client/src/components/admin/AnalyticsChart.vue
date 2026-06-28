@@ -11,10 +11,12 @@ const props = defineProps({
     default: () => []
   }
 });
-
 const chartData = computed(() => {
   return {
-    labels: props.candidates.map(c => c.name.replace(/([A-Z])/g, ' $1').trim()),
+    labels: props.candidates.map(c => {
+      const formattedName = c.name.replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+      return formattedName.length > 20 ? formattedName.slice(0, 20) + '...' : formattedName;
+    }),
     datasets: [
       {
         label: 'Votes Received',
@@ -41,7 +43,7 @@ const chartOptions = {
     legend: { display: false },
     tooltip: {
       backgroundColor: '#0F172A',
-      padding: 12,
+      padding: 1200,
       cornerRadius: 8
     }
   },
