@@ -225,7 +225,7 @@ const submitvote = async () => {
     </div>
 
     <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 transition-all duration-500 animate-slideUp" :class="selectedCandidates.length === 2 ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'">
-      <button @click="submitvote" class="w-full bg-presGold text-white font-bold py-4 rounded-full shadow-xl shadow-orange-500/20 hover:bg-orange-600 hover:scale-105 transition-all flex items-center justify-center gap-2 cursor-pointer">
+      <button @click="submitvote" class="w-full bg-green-400 text-white font-bold py-4 rounded-full shadow-xl shadow-teal-600/20 hover:bg-green-600 hover:scale-105 transition-all flex items-center justify-center gap-2 cursor-pointer">
         <i class="ph-bold ph-paper-plane-right text-xl"></i>
         Submit Official vote
       </button>
