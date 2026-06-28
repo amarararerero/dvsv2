@@ -76,26 +76,49 @@ const requireAdmin = (req, res, next) => {
     }
 };
 
-// --- DATABASE CONNECTION ---
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/diskTest')
-    .then(async () => {
-        console.log('✅ MongoDB Connected Successfully');
-        console.log('URI: ', process.env.MONGO_URI);
-        // Initialize Global Settings if not exists
+// --- DATABASE CONNECTION (Serverless Optimized) ---
+let cachedDb = null;
+const connectToDatabase = async () => {
+    if (cachedDb && mongoose.connection.readyState === 1) {
+        return cachedDb;
+    }
+    console.log('🔄 Connecting to MongoDB...');
+    cachedDb = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/diskTest', {
+        serverSelectionTimeoutMS: 5000 // Fast timeout for serverless environments
+    });
+    
+    // Safe initialization of Global Settings
+    try {
         const exists = await Settings.exists({ _id: 'global_config' });
-        console.log('Global Settings Exists:', exists);
         if (!exists) {
             await Settings.create({
                 _id: 'global_config',
-                admin_password: 'admin', // Default password
+                admin_password: 'admin',
                 election_start: new Date(),
                 election_end: new Date(Date.now() + 86400000), // +24 hours
                 maintenance_mode: false
             });
             console.log('⚙️  Default Settings Created');
         }
-    })
-    .catch(err => console.error('❌ MongoDB Connection Error:', err));
+    } catch (err) {
+        // Gracefully ignore duplicate key errors due to concurrent serverless invocations
+        if (err.code !== 11000) {
+            console.error('Settings initialization warning:', err.message);
+        }
+    }
+    return cachedDb;
+};
+
+// Middleware to guarantee active connection before processing any route
+app.use(async (req, res, next) => {
+    try {
+        await connectToDatabase();
+        next();
+    } catch (err) {
+        console.error('❌ MongoDB Connection Error in middleware:', err.message);
+        res.status(500).json({ success: false, message: 'Database connection failed. Please try again.' });
+    }
+});
 
 
 // --- DATABASE RETRY HELPER ---
