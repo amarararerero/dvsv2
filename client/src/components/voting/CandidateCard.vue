@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   candidate: Object,
@@ -9,12 +9,6 @@ const props = defineProps({
 
 const emit = defineEmits(['vote', 'watch-video']);
 const isFlipped = ref(false);
-
-watch(() => props.isDisabled, (newVal) => {
-  if (newVal) {
-    isFlipped.value = false;
-  }
-});
 
 const resolveImage = (url) => {
   if (!url) return '';
@@ -33,14 +27,13 @@ const resolveImage = (url) => {
 <template>
   <div class="group w-full perspective-1000 relative">
 
-    <div class="relative w- transition-all duration-700 transform-style-3d shadow-xl rounded-xl bg-white dark:bg-slate-800" :class="[ { 'rotate-y-180': isFlipped }, isSelected ? 'ring-4 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-900' : '', isDisabled ? 'opacity-60 grayscale-[0.5]' : '' ]">
-
-      <div class="relative w-full backface-hidden rounded-xl overflow-hidden bg-white dark:bg-slate-800">
+    <div class="relative transition-all duration-700 transform-style-3d shadow-xl rounded-xl" :class="[ { 'rotate-y-180': isFlipped }, isSelected ? 'ring-4 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-900' : '' ]">
+      <div class="relative w-full backface-hidden rounded-xl overflow-hidden" :class="[ isSelected ? 'bg-white/30 backdrop-blur-md' : 'bg-white dark:bg-slate-800', isDisabled ? 'opacity-60 grayscale-[0.5]' : '' ]">
 
         <div class="w-full aspect-[4/5] relative overflow-hidden bg-slate-200 dark:bg-slate-700">
 
-           <div v-if="isSelected" class="absolute top-4 right-4 z-20 h-8 w-8 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg animate-bounce">
-              <i class="ph-bold ph-check"></i>
+           <div v-if="isSelected" class="absolute top-[45%] right-[50%] translate-x-[50%] translate-y-[50%] z-20 h-24 w-24 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg animate-bounce">
+              <i class="ph-bold ph-check text-4xl"></i>
            </div>
 
            <img :src="resolveImage(candidate.photoUrl)" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Candidate Portrait" />
@@ -69,7 +62,7 @@ const resolveImage = (url) => {
         </div>
       </div>
 
-      <div class="absolute inset-0 h-full w-full backface-hidden rotate-y-180 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 flex flex-col shadow-xl overflow-hidden">
+      <div class="absolute inset-0 h-full w-full backface-hidden rotate-y-180 rounded-xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col shadow-xl overflow-hidden" :class="[ isSelected ? 'bg-white/30 backdrop-blur-md' : 'bg-white dark:bg-slate-800', isDisabled ? 'opacity-60 grayscale-[0.5]' : '' ]">
 
         <div class="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
           <div>
@@ -94,7 +87,10 @@ const resolveImage = (url) => {
 <style scoped>
 .perspective-1000 { perspective: 1000px; }
 .transform-style-3d { transform-style: preserve-3d; }
-.backface-hidden { backface-visibility: hidden; }
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
 .rotate-y-180 { transform: rotateY(180deg); }
 
 .custom-scrollbar::-webkit-scrollbar {
