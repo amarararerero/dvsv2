@@ -81,7 +81,7 @@ const checkSemesterTime = (studentData) => {
 
   if (sem === 2) {
     const timeS2Start = new Date(year, month, day, 8, 0, 0);
-    const timeS2End = new Date(year, month, day, 13, 0, 0);
+    const timeS2End = new Date(year, month, day, 13, 30, 0);
     if (new Date() < timeS2Start || new Date() > timeS2End) {
       errorMessage.value = "Semester 2 students can vote from 8AM to 1PM only.";
       return false;
