@@ -1,4 +1,4 @@
-# [Project Name]
+# DiSK Voting System
 
 [![Node Version](https://img.shields.io/badge/Node.js-%3E%3D20.19.0-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org)
 [![Vue Version](https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=flat&logo=vue.js&logoColor=white)](https://vuejs.org)
